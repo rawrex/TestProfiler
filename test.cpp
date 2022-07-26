@@ -12,10 +12,10 @@ constexpr unsigned ITERATION_MODULO = 3;
 constexpr unsigned MIN_ITERATIONS = 0;
 constexpr unsigned MAX_ITERATIONS = 100;
 constexpr unsigned NUMBER_OF_TEST_OBJECTS = 1000;
-constexpr unsigned NUMBER_OF_DATUMS = 1000;
+constexpr unsigned NUMBER_OF_DATUMS = 10;
 
 using big_number_t = long long;
-using big_data_t= std::vector<big_number_t>;
+using big_data_t = std::array<big_number_t, NUMBER_OF_DATUMS>;		// 80 bytes on my machine
 
 // Utility funcitons
 void print(const big_number_t& n) 
@@ -45,7 +45,7 @@ big_data_t makeData()
 	for(auto i=0; i != NUMBER_OF_DATUMS; ++i)
 	{
 		auto random_number = makeRandomNumber(min, max);
-		data.push_back(random_number);
+		data[i] = random_number;
 	}
 
 	return data;
@@ -142,13 +142,6 @@ private:
 	big_data_t data;		// Some heavy data
 };
 
-struct ItemInfo
-{
-    Base* item;
-
-	std::atomic<bool> is_enabled; 
-	std::atomic<std::uint32_t> numebr_of_iterations; 
-};
 
 enum class TestType { A, B, C, D, end};
 
@@ -220,13 +213,35 @@ void testDirectObjectAccess(const std::vector<std::unique_ptr<Base>>& objects)
 }
 
 
+struct ItemInfo
+{
+	ItemInfo(const std::unique_ptr<Base> item) : 
+    std::shared_ptr<Base> item;
+	std::atomic<bool> is_enabled; 
+	std::atomic<std::uint32_t> numebr_of_iterations; 
+};
+
+
+// Profiler function
+template <typename F, typename ... Ts>
+double timedExecution(F&& f, Ts&&...args)
+{
+    std::clock_t start = std::clock();
+    std::forward<F>(f)(std::forward<Ts>(args)...);
+    return static_cast<double>(std::clock() - start) / static_cast<double>(CLOCKS_PER_SEC);
+}
+
+
 
 int main()
 {
+	std::cout << "\n\nSize of big_data_t: " << sizeof(big_data_t) << std::endl;
+	std::cout << "Size of a descendant class (e.g. class A): " << sizeof(A) << std::endl;
+
+	print("Start generation of test object", '\n');
     std::vector<std::unique_ptr<Base>> objects = makeTestObjects();
 
 	print("\nFinished generation of objects", '\n');
-
-    testDirectObjectAccess(objects);
+    std::cout << timedExecution(testDirectObjectAccess, objects);
 
 }
