@@ -22,9 +22,9 @@ void print(const big_number_t& n)
 {
 	std::cout << n << std::endl;
 }
-void print(const std::string& msg) 
+void print(const std::string& msg, const char delim = ' ')
 {
-	std::cout << msg << std::endl;
+	std::cout << msg << delim;
 }
 
 big_number_t makeRandomNumber(long long min, long long max)
@@ -59,8 +59,6 @@ long long makeRandomIterationsNumber()
 	return makeRandomNumber(MIN_ITERATIONS, MAX_ITERATIONS);
 }
 	
-
-
 struct Base  
 {
     virtual void Execute() = 0;
@@ -83,7 +81,7 @@ public:
 
 	virtual void Execute() override 
 	{
-		print(__PRETTY_FUNCTION__);
+		print(__PRETTY_FUNCTION__, '\n');
 	}
 
 private:
@@ -101,7 +99,7 @@ public:
 
 	virtual void Execute() override 
 	{
-		print(__PRETTY_FUNCTION__);
+		print(__PRETTY_FUNCTION__, '\n');
 	}
 
 private:
@@ -119,7 +117,7 @@ public:
 
 	virtual void Execute() override 
 	{
-		print(__PRETTY_FUNCTION__);
+		print(__PRETTY_FUNCTION__, '\n');
 	}
 
 private:
@@ -137,7 +135,7 @@ public:
 
 	virtual void Execute() override 
 	{
-		print(__PRETTY_FUNCTION__);
+		print(__PRETTY_FUNCTION__, '\n');
 	}
 
 private:
@@ -152,17 +150,13 @@ struct ItemInfo
 	std::atomic<std::uint32_t> numebr_of_iterations; 
 };
 
-
-
 enum class TestType { A, B, C, D, end};
 
 TestType randomType()
 {
 	auto random_number = makeRandomNumber(0, 4);
-	// Does not returns D
     return static_cast<TestType>(random_number % static_cast<long long>(TestType::end));
 }
-
 std::unique_ptr<Base> makeRandomObject()
 {
 	auto type = randomType();
@@ -190,7 +184,6 @@ std::unique_ptr<Base> makeRandomObject()
 
 	throw std::exception();
 }
-
 std::vector<std::unique_ptr<Base>> makeTestObjects()
 {
 	std::vector<std::unique_ptr<Base>> test_data;
@@ -230,6 +223,7 @@ void testDirectObjectAccess(const std::vector<std::unique_ptr<Base>>& objects)
 int main()
 {
     std::vector<std::unique_ptr<Base>> objects = makeTestObjects();
+	print("\nFinished generation of objects", '\n');
 
     testDirectObjectAccess(objects);
 
