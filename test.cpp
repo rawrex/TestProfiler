@@ -12,6 +12,13 @@ constexpr unsigned NUMBER_OF_TEST_OBJECTS = 1000;
 using big_number_t = long long;
 using big_data_t= std::vector<big_number_t>;
 
+void print(const big_number_t& n) 
+{
+	std::cout << n << std::endl;
+}
+
+
+// Make a container populated with NUMBER_OF_TEST_OBJECTS with random values
 big_data_t makeData()
 {
 	big_data_t data;
@@ -23,11 +30,14 @@ big_data_t makeData()
 	std::uniform_int_distribution<big_number_t> dist(min, max);
 
 	for(auto i=0; i != NUMBER_OF_TEST_OBJECTS; ++i)
+	{
+		auto random_number = dist(engine);
+		print(random_number);
 		data.emplace_back(dist(engine));
+	}
 
 	return data;
 }
-
 
 
 struct Base  
