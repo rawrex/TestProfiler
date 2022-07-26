@@ -14,6 +14,8 @@ constexpr unsigned MAX_ITERATIONS = 100;
 constexpr unsigned NUMBER_OF_TEST_OBJECTS = 1000;
 constexpr unsigned NUMBER_OF_DATUMS = 10;
 
+class Base;
+
 using big_number_t = long long;
 using big_data_t = std::array<big_number_t, NUMBER_OF_DATUMS>;		// 80 bytes on my machine
 
@@ -73,10 +75,7 @@ struct Base
 class A : public Base
 {
 public:
-	A() 
-	{
-		data = makeData();	// Fill the data with big random numbers
-	}
+	A() : data(makeData()) {}
 	virtual ~A() = default;
 
 	virtual void Execute() override 
@@ -85,16 +84,14 @@ public:
 	}
 
 private:
-	big_data_t data;		// Some heavy data
+	// Some heavy data
+	big_data_t data;
 };
 
 class B : public Base
 {
 public:
-	B()
-	{
-		data = makeData();	// Fill the data with big random numbers
-	}
+	B() : data(makeData()) {}
 	virtual ~B() = default;
 
 	virtual void Execute() override 
@@ -109,10 +106,7 @@ private:
 class C : public Base
 {
 public:
-	C()
-	{
-		data = makeData();	// Fill the data with big random numbers
-	}
+	C() : data(makeData()) {}
 	virtual ~C() = default;
 
 	virtual void Execute() override 
@@ -127,10 +121,7 @@ private:
 class D : public Base
 {
 public:
-	D()
-	{
-		data = makeData();	// Fill the data with big random numbers
-	}
+	D() : data(makeData()) {}
 	virtual ~D() = default;
 
 	virtual void Execute() override 
@@ -150,36 +141,36 @@ TestType randomType()
 	auto random_number = makeRandomNumber(0, 4);
     return static_cast<TestType>(random_number % static_cast<long long>(TestType::end));
 }
-std::unique_ptr<Base> makeRandomObject()
+std::shared_ptr<Base> makeRandomObject()
 {
 	auto type = randomType();
 
 	if(type == TestType::A)
 	{
 		print("A");
-		return std::unique_ptr<Base>(new A());
+		return std::shared_ptr<Base>(new A());
 	}
 	if(type == TestType::B)
 	{
 		print("B");
-		return std::unique_ptr<Base>(new B());
+		return std::shared_ptr<Base>(new B());
 	}
 	if(type == TestType::C)
 	{
 		print("C");
-		return std::unique_ptr<Base>(new C());
+		return std::shared_ptr<Base>(new C());
 	}
 	if(type == TestType::D)
 	{
 		print("D");
-		return std::unique_ptr<Base>(new D());
+		return std::shared_ptr<Base>(new D());
 	}
 
 	throw std::exception();
 }
-std::vector<std::unique_ptr<Base>> makeTestObjects()
+std::vector<std::shared_ptr<Base>> makeTestObjects()
 {
-	std::vector<std::unique_ptr<Base>> test_data;
+	std::vector<std::shared_ptr<Base>> test_data;
 
 	for(auto i=0; i != NUMBER_OF_TEST_OBJECTS; ++i)
 		test_data.push_back(makeRandomObject());
@@ -191,21 +182,21 @@ std::vector<std::unique_ptr<Base>> makeTestObjects()
 
 
 // Common utility test functions
-bool testIterations(const std::unique_ptr<Base>& object_ptr)
+bool testIterations(const std::shared_ptr<Base>& object_ptr)
 {
 	return !(object_ptr->number_of_iterations % ITERATION_MODULO);
 }
-bool testEnabled(const std::unique_ptr<Base>& object_ptr)
+bool testEnabled(const std::shared_ptr<Base>& object_ptr)
 {
 	return object_ptr->is_enabled;
 }
-void testExecute(const std::unique_ptr<Base>& test_object_ptr)
+void testExecute(const std::shared_ptr<Base>& test_object_ptr)
 {
 	if(testEnabled(test_object_ptr) && testIterations(test_object_ptr))
 		test_object_ptr->Execute();
 }
 // Our first main test, in which we fetch objects directly without a pointer proxy
-void testDirectObjectAccess(const std::vector<std::unique_ptr<Base>>& objects)
+void testDirectObjectAccess(const std::vector<std::shared_ptr<Base>>& objects)
 {
 	// Note a reference here
 	for (const auto& object : objects)
@@ -215,10 +206,15 @@ void testDirectObjectAccess(const std::vector<std::unique_ptr<Base>>& objects)
 
 struct ItemInfo
 {
-	ItemInfo(const std::unique_ptr<Base> item) : 
+	ItemInfo(const std::shared_ptr<Base> object) : item(object)
+	{
+		is_enabled.store(object->is_enabled);
+		number_of_iterations.store(object->number_of_iterations);
+	}
+
     std::shared_ptr<Base> item;
 	std::atomic<bool> is_enabled; 
-	std::atomic<std::uint32_t> numebr_of_iterations; 
+	std::atomic<std::uint32_t> number_of_iterations; 
 };
 
 
@@ -239,7 +235,7 @@ int main()
 	std::cout << "Size of a descendant class (e.g. class A): " << sizeof(A) << std::endl;
 
 	print("Start generation of test object", '\n');
-    std::vector<std::unique_ptr<Base>> objects = makeTestObjects();
+    std::vector<std::shared_ptr<Base>> objects = makeTestObjects();
 
 	print("\nFinished generation of objects", '\n');
     std::cout << timedExecution(testDirectObjectAccess, objects);
