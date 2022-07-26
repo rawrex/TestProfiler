@@ -1,4 +1,5 @@
 #include <iostream>
+#include <exception>
 #include <climits>
 #include <atomic>
 #include <string>
@@ -135,6 +136,35 @@ struct ItemInfo
 	std::atomic<std::uint32_t> numebr_of_iterations; 
 };
 
+
+
+enum class TestType { A, B, C, D };
+
+TestType randomType()
+{
+	std::default_random_engine engine(time(nullptr));
+	std::uniform_int_distribution<big_number_t> dist;
+    return static_cast<TestType>(dist(engine) % static_cast<long long>(TestType::D));
+}
+
+std::unique_ptr<Base> makeRandomObject()
+{
+	auto type = randomType();
+
+	if(type == TestType::A)
+		return std::unique_ptr<Base>(new A());
+	if(type == TestType::B)
+		return std::unique_ptr<Base>(new B());
+	if(type == TestType::C)
+		return std::unique_ptr<Base>(new C());
+	if(type == TestType::D)
+		return std::unique_ptr<Base>(new D());
+
+	throw std::exception();
+}
+
+// std::vector<std::unique_ptr<Base>> makeTestObjects()
+	
 
 
 
