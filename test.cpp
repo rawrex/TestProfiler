@@ -276,7 +276,7 @@ int main()
 
     auto objects = makeTestObjects();
 	auto pointers = makeTestPointers(objects);
-	std::size_t end = 0;
+	// std::size_t end = 0;
 	//auto prepared_pointers = prepareIndirect(objects, end);
 	
     auto direct_result = timedExecution(testDirectAccess, objects);
