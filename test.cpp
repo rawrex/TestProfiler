@@ -11,7 +11,7 @@
 constexpr unsigned ITERATION_MODULO = 3;
 constexpr unsigned MIN_ITERATIONS = 0;
 constexpr unsigned MAX_ITERATIONS = 100;
-constexpr unsigned NUMBER_OF_TEST_OBJECTS = 1000;
+constexpr unsigned NUMBER_OF_TEST_OBJECTS = 255;
 constexpr unsigned NUMBER_OF_DATUMS = 10;
 
 class Base;
@@ -135,7 +135,7 @@ private:
 };
 
 
-enum class TestType { A, B, C, D, end};
+enum class TestType { A, B, C, D, end };
 
 TestType randomType()
 {
@@ -195,6 +195,7 @@ void testDirectAccess(const std::vector<std::shared_ptr<Base>>& objects)
 
 struct ItemInfo
 {
+	ItemInfo() = default;
 	ItemInfo(const std::shared_ptr<Base>& object) : item(object)
 	{
 		is_enabled.store(object->is_enabled);
@@ -210,6 +211,13 @@ struct ItemInfo
 	{
 		is_enabled.store(item_info.is_enabled);
 		number_of_iterations.store(item_info.number_of_iterations);
+	}
+	ItemInfo& operator=(const ItemInfo& item_info) 
+	{
+		item = item_info.item;
+		is_enabled.store(item_info.is_enabled);
+		number_of_iterations.store(item_info.number_of_iterations);
+		return *this;
 	}
 
     std::shared_ptr<Base> item;
@@ -250,25 +258,23 @@ void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
 }
 
 // Prepare the ready items first and then execute them in one iteration
-std::vector<ItemInfo> prepareForIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
-{
-	std::vector<ItemInfo> ready_object_ptrs;
-
-	for (const auto& ptr_object : ptr_objects)
-		if(test(ptr_object))
-			ready_object_ptrs.emplace_back(ptr_object);
-			
-	return ready_object_ptrs;
-}
-void executeAll(const std::vector<ItemInfo>& ready_ptr_objects)
-{
-	for(const auto& ptr_object : ready_ptr_objects)
-		ptr_object.item->Execute();
-}
 void testIndirectPrepared(const std::vector<ItemInfo>& ptr_objects)
 {
-	auto ready_objects = prepareForIndirectAccess(ptr_objects);	
-	executeAll(ready_objects);
+	// std::vector<ItemInfo> ready_object_ptrs;
+	std::array<ItemInfo, NUMBER_OF_TEST_OBJECTS> ready_object_ptrs ;
+
+	std::size_t index_ready = 0;
+	for (const auto& ptr_object : ptr_objects)
+	{
+		if(!test(ptr_object))
+			continue;
+
+		ready_object_ptrs[index_ready] = ptr_object;
+		++index_ready;
+	}
+	for(std::size_t index = 0; index != index_ready; ++index)
+		ready_object_ptrs[index].item->Execute();
+			
 }
 		
 
