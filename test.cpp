@@ -33,6 +33,15 @@ big_number_t makeRandomNumber(long long min, long long max)
 	return dist(engine);
 }
 
+// Profiler function
+template <typename F, typename ... Ts>
+double timedExecution(F&& f, Ts&&...args)
+{
+    std::clock_t start = std::clock();
+    std::forward<F>(f)(std::forward<Ts>(args)...);
+    return static_cast<double>(std::clock() - start) / static_cast<double>(CLOCKS_PER_SEC);
+}
+
 // Make a container populated with NUMBER_OF_TEST_OBJECTS with random values
 big_data_t makeData()
 {
@@ -74,15 +83,12 @@ class A : public Base
 public:
 	A() : data(makeData()) {}
 	virtual ~A() = default;
-
 	virtual void Execute() const override 
 	{
-		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
 	}
 
 private:
-	// Some heavy data
 	big_data_t data;
 };
 
@@ -91,15 +97,12 @@ class B : public Base
 public:
 	B() : data(makeData()) {}
 	virtual ~B() = default;
-
 	virtual void Execute() const override 
 	{
-		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
 	}
-
 private:
-	big_data_t data;		// Some heavy data
+	big_data_t data;
 };
 
 class C : public Base
@@ -107,15 +110,12 @@ class C : public Base
 public:
 	C() : data(makeData()) {}
 	virtual ~C() = default;
-
 	virtual void Execute() const override 
 	{
-		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
 	}
-
 private:
-	big_data_t data;		// Some heavy data
+	big_data_t data;
 };
 
 class D : public Base
@@ -123,17 +123,14 @@ class D : public Base
 public:
 	D() : data(makeData()) {}
 	virtual ~D() = default;
-
 	virtual void Execute() const override 
 	{
-		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
 	}
 
 private:
-	big_data_t data;		// Some heavy data
+	big_data_t data;
 };
-
 
 enum class TestType { A, B, C, D, end };
 
@@ -167,69 +164,53 @@ std::vector<std::shared_ptr<Base>> makeTestObjects()
 	return test_data;
 }
 		
-
-
-
-// Common utility test functions
-bool testIterations(const std::shared_ptr<Base>& object_ptr)
+// Test framework
+template <typename T>
+bool testIterations(const T& object)
 {
-	return !(object_ptr->number_of_iterations % ITERATION_MODULO);
+	return !(object.number_of_iterations % ITERATION_MODULO);
 }
-bool testEnabled(const std::shared_ptr<Base>& object_ptr)
+template <typename T>
+bool testEnabled(const T& object)
 {
-	return object_ptr->is_enabled;
+	return object.is_enabled;
 }
-bool test(const std::shared_ptr<Base>& object_ptr)
+template <typename T>
+bool test(const T& object)
 {
-	return testEnabled(object_ptr) && testIterations(object_ptr);
+	return testEnabled(object) && testIterations(object);
 }
-void testExecute(const std::shared_ptr<Base>& test_object_ptr)
+template <typename T>
+void testExecute(const T& object)
 {
-	if(test(test_object_ptr))
-		test_object_ptr->Execute();
+	if(test(object))
+		object.Execute();
 }
-// Our first main test, in which we fetch objects directly without a pointer proxy
-void testDirectAccess(const std::vector<std::shared_ptr<Base>>& objects)
-{
-	// Note a reference here
-	for (const auto& object : objects)
-		testExecute(object);
-}
-
 
 struct ItemInfo
 {
-//	ItemInfo(const std::shared_ptr<Base>& object) : item(*object)
-//	{
-//		is_enabled.store(object->is_enabled);
-//		number_of_iterations.store(object->number_of_iterations);
-//	}
-//
-//	ItemInfo(ItemInfo&& item_info) : item(std::move(item_info.item))
-//	{
-//		is_enabled.store(item_info.is_enabled);
-//		number_of_iterations.store(item_info.number_of_iterations);
-//	}
-//	ItemInfo(const ItemInfo& item_info) : item(item_info.item)
-//	{
-//		is_enabled.store(item_info.is_enabled);
-//		number_of_iterations.store(item_info.number_of_iterations);
-//	}
-//	ItemInfo& operator=(const ItemInfo& item_info) 
-//	{
-//		item = item_info.item;
-//		is_enabled.store(item_info.is_enabled);
-//		number_of_iterations.store(item_info.number_of_iterations);
-//		return *this;
-//	}
-
 	ItemInfo() = default;
+	ItemInfo(ItemInfo&& item_info) : item(std::move(item_info.item))
+	{
+		is_enabled.store(item_info.is_enabled);
+		number_of_iterations.store(item_info.number_of_iterations);
+	}
+	ItemInfo& operator=(const ItemInfo& item_info) 
+	{
+		item = item_info.item;
+		is_enabled.store(item_info.is_enabled);
+		number_of_iterations.store(item_info.number_of_iterations);
+		return *this;
+	}
 	ItemInfo(const Base& object) : item(&object) 
 	{
 		is_enabled.store(object.is_enabled);
 		number_of_iterations.store(object.number_of_iterations);
 	}
-	
+	void Execute() const 
+	{
+		item->Execute();
+	}
 	const Base* item = nullptr;
 	std::atomic<bool> is_enabled = false; 
 	std::atomic<std::uint32_t> number_of_iterations = 0;
@@ -243,23 +224,6 @@ std::vector<ItemInfo> makeTestPointers(const std::vector<std::shared_ptr<Base>>&
 
 	return test_pointers;
 }
-bool testIterations(const ItemInfo& item_info)
-{
-	return !(item_info.number_of_iterations % ITERATION_MODULO);
-}
-bool testEnabled(const ItemInfo& item_info)
-{
-	return item_info.is_enabled;
-}
-bool test(const ItemInfo& item_info)
-{
-	return testEnabled(item_info) && testIterations(item_info);
-}
-void testExecute(const ItemInfo& item_info)
-{
-	if(test(item_info))
-		item_info.item->Execute();
-}
 // Execute as soon as an object has passed the tests
 void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
 {
@@ -272,22 +236,22 @@ void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
 using array = std::array<ItemInfo, NUMBER_OF_TEST_OBJECTS>;
 
 // Note the use of output paramter, which is a bad practice
-array prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects, std::size_t& end)
-{
-	array ready_object_ptrs;
-
-	std::size_t index = 0;
-	for (const auto& object : test_objects)
-	{
-		if(!test(object))
-			continue;
-
-		ready_object_ptrs[index] = ItemInfo(*object);
-		++index;
-	}
-	end = index;
-	return ready_object_ptrs;
-}
+//array prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects, std::size_t& end)
+//{
+//	array ready_object_ptrs;
+//
+//	std::size_t index = 0;
+//	for (const auto& object : test_objects)
+//	{
+//		if(!test(object))
+//			continue;
+//
+//		ready_object_ptrs[index] = ItemInfo(*object);
+//		++index;
+//	}
+//	end = index;
+//	return ready_object_ptrs;
+//}
 
 void testIndirectPrepared(const array& ready_object_ptrs, const std::size_t& end)
 {
@@ -296,16 +260,13 @@ void testIndirectPrepared(const array& ready_object_ptrs, const std::size_t& end
 			
 }
 		
-
-
-// Profiler function
-template <typename F, typename ... Ts>
-double timedExecution(F&& f, Ts&&...args)
+void testDirectAccess(const std::vector<std::shared_ptr<Base>>& objects)
 {
-    std::clock_t start = std::clock();
-    std::forward<F>(f)(std::forward<Ts>(args)...);
-    return static_cast<double>(std::clock() - start) / static_cast<double>(CLOCKS_PER_SEC);
+	for (const auto& object : objects)
+		testExecute(*object);
 }
+
+
 
 
 
@@ -316,18 +277,18 @@ int main()
     auto objects = makeTestObjects();
 	auto pointers = makeTestPointers(objects);
 	std::size_t end = 0;
-	auto prepared_pointers = prepareIndirect(objects, end);
+	//auto prepared_pointers = prepareIndirect(objects, end);
 	
     auto direct_result = timedExecution(testDirectAccess, objects);
     auto indirect_result = timedExecution(testIndirectAccess, pointers);
-    auto indirect_prepared_result = timedExecution(testIndirectPrepared, prepared_pointers, end);
+    // auto indirect_prepared_result = timedExecution(testIndirectPrepared, prepared_pointers, end);
 
 	print("\nDirect access result:");
 	print(direct_result, '\n');
 	print("Indirect access result:");
 	print(indirect_result, '\n');
 	print("Indirect prepared access result:");
-	print(indirect_prepared_result);
+	// print(indirect_prepared_result);
 	
 	std::cout << std::endl;
 
