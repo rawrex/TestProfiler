@@ -1,6 +1,6 @@
 #include <iostream>
 #include <exception>
-#include <climits>
+#include <limits>
 #include <atomic>
 #include <string>
 #include <memory>
@@ -39,8 +39,8 @@ big_data_t makeData()
 {
 	big_data_t data;
 	
-	auto min = LLONG_MAX - LLONG_MAX/2;
-	auto max = LLONG_MAX;	
+	auto min = std::numeric_limits<big_number_t>::min();
+	auto max = std::numeric_limits<big_number_t>::max();
 	
 	for(auto i=0; i != NUMBER_OF_DATUMS; ++i)
 	{
@@ -211,7 +211,6 @@ void testExecute(const std::unique_ptr<Base>& test_object_ptr)
 	if(testEnabled(test_object_ptr) && testIterations(test_object_ptr))
 		test_object_ptr->Execute();
 }
-
 // Our first main test, in which we fetch objects directly without a pointer proxy
 void testDirectObjectAccess(const std::vector<std::unique_ptr<Base>>& objects)
 {
@@ -220,9 +219,12 @@ void testDirectObjectAccess(const std::vector<std::unique_ptr<Base>>& objects)
 		testExecute(object);
 }
 
+
+
 int main()
 {
     std::vector<std::unique_ptr<Base>> objects = makeTestObjects();
+
 	print("\nFinished generation of objects", '\n');
 
     testDirectObjectAccess(objects);
