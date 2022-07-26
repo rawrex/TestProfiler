@@ -200,7 +200,7 @@ void testDirectAccess(const std::vector<std::shared_ptr<Base>>& objects)
 struct ItemInfo
 {
 	ItemInfo() = default;
-	ItemInfo(const std::shared_ptr<Base>& object) : item(object)
+	ItemInfo(const std::shared_ptr<Base>& object) : item(*object)
 	{
 		is_enabled.store(object->is_enabled);
 		number_of_iterations.store(object->number_of_iterations);
@@ -224,7 +224,7 @@ struct ItemInfo
 		return *this;
 	}
 
-    std::shared_ptr<Base> item;
+	Base* item;
 	std::atomic<bool> is_enabled; 
 	std::atomic<std::uint32_t> number_of_iterations; 
 };
