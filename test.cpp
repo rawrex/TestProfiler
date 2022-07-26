@@ -305,34 +305,18 @@ double timedExecution(F&& f, Ts&&...args)
 
 int main()
 {
-	// Prepare the stdout to display the results properly
-	std::cout.precision(8);
 	std::cout << std::fixed;
 
-	print("Start generation of test objects...");
-    std::vector<std::shared_ptr<Base>> objects = makeTestObjects();
-	print("Done!", '\n');
-
-	print("Start generation of pointers to objects...");
+    auto objects = makeTestObjects();
 	auto pointers = makeTestPointers(objects);
-	print("Done!", '\n');
-
-	print("Start generation of prepared case for pointers to objects...");
 	std::size_t end = 0;
 	auto prepared_pointers = prepareIndirect(objects, end);
-	print("Done!", '\n');
 	
-	std::cout << "Testing direct access... " << std::flush;
     auto direct_result = timedExecution(testDirectAccess, objects);
-	std::cout << "Done!" << std::endl;
-	std::cout << "Testing indirect access... " << std::flush;
     auto indirect_result = timedExecution(testIndirectAccess, pointers);
-	std::cout << "Done!" << std::endl;
-	std::cout << "Testing indirect prepared access... " << std::flush;
     auto indirect_prepared_result = timedExecution(testIndirectPrepared, prepared_pointers, end);
-	std::cout << "Done!" << std::endl;
 
-	print("Direct access result:");
+	print("\nDirect access result:");
 	print(direct_result, '\n');
 	print("Indirect access result:");
 	print(indirect_result, '\n');
