@@ -1,6 +1,7 @@
 #include <iostream>
 #include <climits>
 #include <atomic>
+#include <string>
 #include <memory>
 #include <random>
 #include <vector>
@@ -12,11 +13,15 @@ constexpr unsigned NUMBER_OF_TEST_OBJECTS = 1000;
 using big_number_t = long long;
 using big_data_t= std::vector<big_number_t>;
 
+// Utility funciton
 void print(const big_number_t& n) 
 {
 	std::cout << n << std::endl;
 }
-
+void print(const std::string& msg) 
+{
+	std::cout << msg << std::endl;
+}
 
 // Make a container populated with NUMBER_OF_TEST_OBJECTS with random values
 big_data_t makeData()
@@ -57,6 +62,14 @@ public:
 	{
 		data = makeData();	// Fill the data with big random numbers
 	}
+	virtual ~A() = default;
+
+	virtual void Execute() override 
+	{
+		print(__PRETTY_FUNCTION__);
+	}
+
+private:
 	big_data_t data;		// Some heavy data
 };
 
@@ -67,6 +80,14 @@ public:
 	{
 		data = makeData();	// Fill the data with big random numbers
 	}
+	virtual ~B() = default;
+
+	virtual void Execute() override 
+	{
+		print(__PRETTY_FUNCTION__);
+	}
+
+private:
 	big_data_t data;		// Some heavy data
 };
 
@@ -77,6 +98,14 @@ public:
 	{
 		data = makeData();	// Fill the data with big random numbers
 	}
+	virtual ~C() = default;
+
+	virtual void Execute() override 
+	{
+		print(__PRETTY_FUNCTION__);
+	}
+
+private:
 	big_data_t data;		// Some heavy data
 };
 
@@ -87,6 +116,14 @@ public:
 	{
 		data = makeData();	// Fill the data with big random numbers
 	}
+	virtual ~D() = default;
+
+	virtual void Execute() override 
+	{
+		print(__PRETTY_FUNCTION__);
+	}
+
+private:
 	big_data_t data;		// Some heavy data
 };
 
