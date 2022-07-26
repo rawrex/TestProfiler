@@ -1,11 +1,34 @@
 #include <iostream>
+#include <climits>
 #include <atomic>
 #include <memory>
 #include <random>
 #include <vector>
+#include <ctime>
 
 constexpr unsigned ITERATION_MODULO = 3;
 constexpr unsigned NUMBER_OF_TEST_OBJECTS = 1000;
+
+using big_number_t = long long;
+using big_data_t= std::vector<big_number_t>;
+
+big_data_t makeData()
+{
+	big_data_t data;
+	
+	auto min = LLONG_MAX - LLONG_MAX/2;
+	auto max = LLONG_MAX;	
+	
+	std::default_random_engine engine(time(nullptr));
+	std::uniform_int_distribution<big_number_t> dist(min, max);
+
+	for(auto i=0; i != NUMBER_OF_TEST_OBJECTS; ++i)
+		data.emplace_back(dist(engine));
+
+	return data;
+}
+
+
 
 struct Base  
 {
@@ -23,9 +46,10 @@ public:
 	A()
 	{
 		// Fill the data with big random numbers
+		data = makeData();
 	}
 	// Some heavy data
-	std::vector<long long> data;	
+	big_data_t data;	
 };
 
 class B : public Base
@@ -34,9 +58,10 @@ public:
 	B()
 	{
 		// Fill the data with big random numbers
+		data = makeData();
 	}
 	// Some heavy data
-	std::vector<std::wstring> data;	
+	big_data_t data;	
 };
 
 class C : public Base
@@ -45,9 +70,10 @@ public:
 	C()
 	{
 		// Fill the data with big random numbers
+		data = makeData();
 	}
 	// Some heavy data
-	std::vector<int64_t> data;	
+	big_data_t data;	
 };
 
 class D : public Base
@@ -56,9 +82,10 @@ public:
 	D()
 	{
 		// Fill the data with big random numbers
+		data = makeData();
 	}
 	// Some heavy data
-	std::vector<long long> data;	
+	big_data_t data;	
 };
 
 struct ItemInfo
@@ -70,14 +97,6 @@ struct ItemInfo
 };
 
 
-// Utility functions which we'll use to populate our test objects with random data
-void makeTestData()
-{
-	std::vector<std::unique_ptr<Base>> test_data;
-	for(auto i=0; i != NUMBER_OF_TEST_OBJECTS; ++i)
-		test_data.emplace_back();
-		
-	
 
 
 // Common utility test functions
