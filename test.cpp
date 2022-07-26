@@ -283,5 +283,7 @@ int main()
 	print(direct_result, '\n');
 	print("Indirect access result:");
 	print(indirect_result);
+	
+	std::cout << std::endl;
 
 }
