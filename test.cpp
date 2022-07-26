@@ -309,11 +309,6 @@ int main()
 	std::cout.precision(8);
 	std::cout << std::fixed;
 
-	print("Size of big_data_t: ");
-	print(sizeof(big_data_t), '\n');
-	print("Size of a descendant class (e.g. class A): ");
-	print(sizeof(A), '\n');
-
 	print("Start generation of test objects...");
     std::vector<std::shared_ptr<Base>> objects = makeTestObjects();
 	print("Done!", '\n');
