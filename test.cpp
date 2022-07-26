@@ -45,11 +45,9 @@ class A : public Base
 public:
 	A()
 	{
-		// Fill the data with big random numbers
-		data = makeData();
+		data = makeData();	// Fill the data with big random numbers
 	}
-	// Some heavy data
-	big_data_t data;	
+	big_data_t data;		// Some heavy data
 };
 
 class B : public Base
@@ -57,11 +55,9 @@ class B : public Base
 public:
 	B()
 	{
-		// Fill the data with big random numbers
-		data = makeData();
+		data = makeData();	// Fill the data with big random numbers
 	}
-	// Some heavy data
-	big_data_t data;	
+	big_data_t data;		// Some heavy data
 };
 
 class C : public Base
@@ -69,11 +65,9 @@ class C : public Base
 public:
 	C()
 	{
-		// Fill the data with big random numbers
-		data = makeData();
+		data = makeData();	// Fill the data with big random numbers
 	}
-	// Some heavy data
-	big_data_t data;	
+	big_data_t data;		// Some heavy data
 };
 
 class D : public Base
@@ -81,11 +75,9 @@ class D : public Base
 public:
 	D()
 	{
-		// Fill the data with big random numbers
-		data = makeData();
+		data = makeData();	// Fill the data with big random numbers
 	}
-	// Some heavy data
-	big_data_t data;	
+	big_data_t data;		// Some heavy data
 };
 
 struct ItemInfo
