@@ -60,7 +60,7 @@ long long makeRandomIterationsNumber()
 	
 struct Base  
 {
-    virtual void Execute() = 0;
+    virtual void Execute() const = 0;
 		
 	Base() : is_enabled(makeRandomBool()), number_of_iterations(makeRandomIterationsNumber()) {}
 	virtual ~Base() = default;
@@ -75,7 +75,7 @@ public:
 	A() : data(makeData()) {}
 	virtual ~A() = default;
 
-	virtual void Execute() override 
+	virtual void Execute() const override 
 	{
 		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
@@ -92,7 +92,7 @@ public:
 	B() : data(makeData()) {}
 	virtual ~B() = default;
 
-	virtual void Execute() override 
+	virtual void Execute() const override 
 	{
 		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
@@ -108,7 +108,7 @@ public:
 	C() : data(makeData()) {}
 	virtual ~C() = default;
 
-	virtual void Execute() override 
+	virtual void Execute() const override 
 	{
 		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
@@ -124,7 +124,7 @@ public:
 	D() : data(makeData()) {}
 	virtual ~D() = default;
 
-	virtual void Execute() override 
+	virtual void Execute() const override 
 	{
 		// print(__PRETTY_FUNCTION__, '\n');
 		print(makeRandomNumber(0,10));
@@ -199,41 +199,47 @@ void testDirectAccess(const std::vector<std::shared_ptr<Base>>& objects)
 
 struct ItemInfo
 {
+//	ItemInfo(const std::shared_ptr<Base>& object) : item(*object)
+//	{
+//		is_enabled.store(object->is_enabled);
+//		number_of_iterations.store(object->number_of_iterations);
+//	}
+//
+//	ItemInfo(ItemInfo&& item_info) : item(std::move(item_info.item))
+//	{
+//		is_enabled.store(item_info.is_enabled);
+//		number_of_iterations.store(item_info.number_of_iterations);
+//	}
+//	ItemInfo(const ItemInfo& item_info) : item(item_info.item)
+//	{
+//		is_enabled.store(item_info.is_enabled);
+//		number_of_iterations.store(item_info.number_of_iterations);
+//	}
+//	ItemInfo& operator=(const ItemInfo& item_info) 
+//	{
+//		item = item_info.item;
+//		is_enabled.store(item_info.is_enabled);
+//		number_of_iterations.store(item_info.number_of_iterations);
+//		return *this;
+//	}
+
 	ItemInfo() = default;
-	ItemInfo(const std::shared_ptr<Base>& object) : item(*object)
+	ItemInfo(const Base& object) : item(&object) 
 	{
-		is_enabled.store(object->is_enabled);
-		number_of_iterations.store(object->number_of_iterations);
+		is_enabled.store(object.is_enabled);
+		number_of_iterations.store(object.number_of_iterations);
 	}
-
-	ItemInfo(ItemInfo&& item_info) : item(std::move(item_info.item))
-	{
-		is_enabled.store(item_info.is_enabled);
-		number_of_iterations.store(item_info.number_of_iterations);
-	}
-	ItemInfo(const ItemInfo& item_info) : item(item_info.item)
-	{
-		is_enabled.store(item_info.is_enabled);
-		number_of_iterations.store(item_info.number_of_iterations);
-	}
-	ItemInfo& operator=(const ItemInfo& item_info) 
-	{
-		item = item_info.item;
-		is_enabled.store(item_info.is_enabled);
-		number_of_iterations.store(item_info.number_of_iterations);
-		return *this;
-	}
-
-	Base* item;
-	std::atomic<bool> is_enabled; 
-	std::atomic<std::uint32_t> number_of_iterations; 
+	
+	const Base* item = nullptr;
+	std::atomic<bool> is_enabled = false; 
+	std::atomic<std::uint32_t> number_of_iterations = 0;
 };
 std::vector<ItemInfo> makeTestPointers(const std::vector<std::shared_ptr<Base>>& test_objects)
 {
 	std::vector<ItemInfo> test_pointers;
 
 	for(const std::shared_ptr<Base>& object : test_objects)
-		test_pointers.emplace_back(object);
+		test_pointers.emplace_back(*object);
 
 	return test_pointers;
 }
@@ -276,7 +282,7 @@ array prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects, st
 		if(!test(object))
 			continue;
 
-		ready_object_ptrs[index] = ItemInfo(object);
+		ready_object_ptrs[index] = ItemInfo(*object);
 		++index;
 	}
 	end = index;
