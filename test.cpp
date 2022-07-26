@@ -206,6 +206,11 @@ struct ItemInfo
 		is_enabled.store(item_info.is_enabled);
 		number_of_iterations.store(item_info.number_of_iterations);
 	}
+	ItemInfo(const ItemInfo& item_info) : item(item_info.item)
+	{
+		is_enabled.store(item_info.is_enabled);
+		number_of_iterations.store(item_info.number_of_iterations);
+	}
 
     std::shared_ptr<Base> item;
 	std::atomic<bool> is_enabled; 
@@ -228,16 +233,42 @@ bool testEnabled(const ItemInfo& item_info)
 {
 	return item_info.is_enabled;
 }
+bool test(const ItemInfo& item_info)
+{
+	return testEnabled(item_info) && testIterations(item_info);
+}
 void testExecute(const ItemInfo& item_info)
 {
-	if(testEnabled(item_info) && testIterations(item_info))
+	if(test(item_info))
 		item_info.item->Execute();
 }
+// Execute as soon as an object has passed the tests
 void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
 {
-	// Note a reference here
 	for (const auto& object : ptr_objects)
 		testExecute(object);
+}
+
+// Prepare the ready items first and then execute them in one iteration
+std::vector<ItemInfo> prepareForIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
+{
+	std::vector<ItemInfo> ready_object_ptrs;
+
+	for (const auto& ptr_object : ptr_objects)
+		if(test(ptr_object))
+			ready_object_ptrs.emplace_back(ptr_object);
+			
+	return ready_object_ptrs;
+}
+void executeAll(const std::vector<ItemInfo>& ready_ptr_objects)
+{
+	for(const auto& ptr_object : ready_ptr_objects)
+		ptr_object.item->Execute();
+}
+void testIndirectPrepared(const std::vector<ItemInfo>& ptr_objects)
+{
+	auto ready_objects = prepareForIndirectAccess(ptr_objects);	
+	executeAll(ready_objects);
 }
 		
 
@@ -278,11 +309,16 @@ int main()
 	std::cout << "Testing indirect access... " << std::flush;
     auto indirect_result = timedExecution(testIndirectAccess, pointers);
 	std::cout << "Done!" << std::endl;
+	std::cout << "Testing indirect prepared access... " << std::flush;
+    auto indirect_prepared_result = timedExecution(testIndirectPrepared, pointers);
+	std::cout << "Done!" << std::endl;
 
 	print("Direct access result:");
 	print(direct_result, '\n');
 	print("Indirect access result:");
-	print(indirect_result);
+	print(indirect_result, '\n');
+	print("Indirect prepared access result:");
+	print(indirect_prepared_result);
 	
 	std::cout << std::endl;
 
