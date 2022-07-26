@@ -154,13 +154,13 @@ struct ItemInfo
 
 
 
-enum class TestType { A, B, C, D };
+enum class TestType { A, B, C, D, end};
 
 TestType randomType()
 {
 	auto random_number = makeRandomNumber(0, 4);
 	// Does not returns D
-    return static_cast<TestType>(random_number % static_cast<long long>(TestType::D));
+    return static_cast<TestType>(random_number % static_cast<long long>(TestType::end));
 }
 
 std::unique_ptr<Base> makeRandomObject()
