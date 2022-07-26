@@ -179,9 +179,13 @@ bool testEnabled(const std::shared_ptr<Base>& object_ptr)
 {
 	return object_ptr->is_enabled;
 }
+bool test(const std::shared_ptr<Base>& object_ptr)
+{
+	return testEnabled(object_ptr) && testIterations(object_ptr);
+}
 void testExecute(const std::shared_ptr<Base>& test_object_ptr)
 {
-	if(testEnabled(test_object_ptr) && testIterations(test_object_ptr))
+	if(test(test_object_ptr))
 		test_object_ptr->Execute();
 }
 // Our first main test, in which we fetch objects directly without a pointer proxy
@@ -258,21 +262,30 @@ void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
 }
 
 // Prepare the ready items first and then execute them in one iteration
-void testIndirectPrepared(const std::vector<ItemInfo>& ptr_objects)
-{
-	// std::vector<ItemInfo> ready_object_ptrs;
-	std::array<ItemInfo, NUMBER_OF_TEST_OBJECTS> ready_object_ptrs ;
+// We'll use the std::array
+using array = std::array<ItemInfo, NUMBER_OF_TEST_OBJECTS>;
 
-	std::size_t index_ready = 0;
-	for (const auto& ptr_object : ptr_objects)
+// Note the use of output paramter, which is a bad practice
+array prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects, std::size_t& end)
+{
+	array ready_object_ptrs;
+
+	std::size_t index = 0;
+	for (const auto& object : test_objects)
 	{
-		if(!test(ptr_object))
+		if(!test(object))
 			continue;
 
-		ready_object_ptrs[index_ready] = ptr_object;
-		++index_ready;
+		ready_object_ptrs[index] = ItemInfo(object);
+		++index;
 	}
-	for(std::size_t index = 0; index != index_ready; ++index)
+	end = index;
+	return ready_object_ptrs;
+}
+
+void testIndirectPrepared(const array& ready_object_ptrs, const std::size_t& end)
+{
+	for(std::size_t index = 0; index != end; ++index)
 		ready_object_ptrs[index].item->Execute();
 			
 }
@@ -308,6 +321,11 @@ int main()
 	print("Start generation of pointers to objects...");
 	auto pointers = makeTestPointers(objects);
 	print("Done!", '\n');
+
+	print("Start generation of prepared case for pointers to objects...");
+	std::size_t end = 0;
+	auto prepared_pointers = prepareIndirect(objects, end);
+	print("Done!", '\n');
 	
 	std::cout << "Testing direct access... " << std::flush;
     auto direct_result = timedExecution(testDirectAccess, objects);
@@ -316,7 +334,7 @@ int main()
     auto indirect_result = timedExecution(testIndirectAccess, pointers);
 	std::cout << "Done!" << std::endl;
 	std::cout << "Testing indirect prepared access... " << std::flush;
-    auto indirect_prepared_result = timedExecution(testIndirectPrepared, pointers);
+    auto indirect_prepared_result = timedExecution(testIndirectPrepared, prepared_pointers, end);
 	std::cout << "Done!" << std::endl;
 
 	print("Direct access result:");
