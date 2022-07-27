@@ -139,24 +139,24 @@ TestType randomType()
 	auto random_number = makeRandomNumber(0, 4);
     return static_cast<TestType>(random_number % static_cast<long long>(TestType::end));
 }
-std::shared_ptr<Base> makeRandomObject()
+std::unique_ptr<Base> makeRandomObject()
 {
 	auto type = randomType();
 
 	if(type == TestType::A)
-		return std::shared_ptr<Base>(new A());
+		return std::unique_ptr<Base>(new A());
 	if(type == TestType::B)
-		return std::shared_ptr<Base>(new B());
+		return std::unique_ptr<Base>(new B());
 	if(type == TestType::C)
-		return std::shared_ptr<Base>(new C());
+		return std::unique_ptr<Base>(new C());
 	if(type == TestType::D)
-		return std::shared_ptr<Base>(new D());
+		return std::unique_ptr<Base>(new D());
 
 	throw std::exception();
 }
-std::vector<std::shared_ptr<Base>> makeTestObjects()
+std::vector<std::unique_ptr<Base>> makeTestObjects()
 {
-	std::vector<std::shared_ptr<Base>> test_data;
+	std::vector<std::unique_ptr<Base>> test_data;
 
 	for(auto i=0; i != NUMBER_OF_TEST_OBJECTS; ++i)
 		test_data.push_back(makeRandomObject());
@@ -215,11 +215,11 @@ struct ItemInfo
 	std::atomic<bool> is_enabled = false; 
 	std::atomic<std::uint32_t> number_of_iterations = 0;
 };
-std::vector<ItemInfo> makeTestPointers(const std::vector<std::shared_ptr<Base>>& test_objects)
+std::vector<ItemInfo> makeTestPointers(const std::vector<std::unique_ptr<Base>>& test_objects)
 {
 	std::vector<ItemInfo> test_pointers;
 
-	for(const std::shared_ptr<Base>& object : test_objects)
+	for(const std::unique_ptr<Base>& object : test_objects)
 		test_pointers.emplace_back(*object);
 
 	return test_pointers;
@@ -236,7 +236,7 @@ void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
 using array = std::array<ItemInfo, NUMBER_OF_TEST_OBJECTS>;
 
 
-std::vector<ItemInfo> prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects)
+std::vector<ItemInfo> prepareIndirect(const std::vector<std::unique_ptr<Base>>& test_objects)
 {
 	std::vector<ItemInfo> ready_object_ptrs;
 
@@ -256,7 +256,7 @@ void testIndirectPrepared(const std::vector<ItemInfo>& ready_items)
 		item.Execute();
 }
 		
-void testDirectAccess(const std::vector<std::shared_ptr<Base>>& objects)
+void testDirectAccess(const std::vector<std::unique_ptr<Base>>& objects)
 {
 	for (const auto& object : objects)
 		testExecute(*object);
