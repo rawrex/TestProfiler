@@ -24,58 +24,7 @@ std::vector<std::unique_ptr<Base>> makeTestObjects()
 	
 	return test_data;
 }
-		
-// Test framework
-template <typename T>
-bool testIterations(const T& object)
-{
-	return !(object.number_of_iterations % ITERATION_MODULO);
-}
-template <typename T>
-bool testEnabled(const T& object)
-{
-	return object.is_enabled;
-}
-template <typename T>
-bool test(const T& object)
-{
-	return testEnabled(object) && testIterations(object);
-}
-template <typename T>
-void testExecute(const T& object)
-{
-	if(test(object))
-		object.Execute();
-}
 
-struct ItemInfo
-{
-	ItemInfo() = default;
-	ItemInfo(ItemInfo&& item_info) : item(std::move(item_info.item))
-	{
-		is_enabled.store(item_info.is_enabled);
-		number_of_iterations.store(item_info.number_of_iterations);
-	}
-	ItemInfo& operator=(const ItemInfo& item_info) 
-	{
-		item = item_info.item;
-		is_enabled.store(item_info.is_enabled);
-		number_of_iterations.store(item_info.number_of_iterations);
-		return *this;
-	}
-	ItemInfo(const Base& object) : item(&object) 
-	{
-		is_enabled.store(object.is_enabled);
-		number_of_iterations.store(object.number_of_iterations);
-	}
-	void Execute() const 
-	{
-		item->Execute();
-	}
-	const Base* item = nullptr;
-	std::atomic<bool> is_enabled = false; 
-	std::atomic<std::uint32_t> number_of_iterations = 0;
-};
 std::vector<ItemInfo> makeTestPointers(const std::vector<std::unique_ptr<Base>>& test_objects)
 {
 	std::vector<ItemInfo> test_pointers;
