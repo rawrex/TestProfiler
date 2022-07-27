@@ -27,16 +27,19 @@ bool testIterations(const T& object)
 {
 	return !(object.number_of_iterations % ITERATION_MODULO);
 }
+
 template <typename T>
 bool testEnabled(const T& object)
 {
 	return object.is_enabled;
 }
+
 template <typename T>
 bool test(const T& object)
 {
 	return testEnabled(object) && testIterations(object);
 }
+
 template <typename T>
 void testExecute(const T& object)
 {

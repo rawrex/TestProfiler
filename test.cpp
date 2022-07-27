@@ -25,9 +25,9 @@ std::vector<std::unique_ptr<Base>> makeTestObjects()
 	return test_data;
 }
 
-std::vector<ItemInfo> makeTestPointers(const std::vector<std::unique_ptr<Base>>& test_objects)
+std::vector<Proxy> makeTestPointers(const std::vector<std::unique_ptr<Base>>& test_objects)
 {
-	std::vector<ItemInfo> test_pointers;
+	std::vector<Proxy> test_pointers;
 
 	for(const std::unique_ptr<Base>& object : test_objects)
 		test_pointers.emplace_back(*object);
@@ -35,20 +35,14 @@ std::vector<ItemInfo> makeTestPointers(const std::vector<std::unique_ptr<Base>>&
 	return test_pointers;
 }
 // Execute as soon as an object has passed the tests
-void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
+void testIndirectAccess(const std::vector<Proxy>& ptr_objects)
 {
 	for (const auto& object : ptr_objects)
 		testExecute(object);
 }
-
-// Prepare the ready items first and then execute them in one iteration
-// We'll use the std::array
-using array = std::array<ItemInfo, NUMBER_OF_TEST_OBJECTS>;
-
-
-std::vector<ItemInfo> prepareIndirect(const std::vector<std::unique_ptr<Base>>& test_objects)
+std::vector<Proxy> prepareIndirect(const std::vector<std::unique_ptr<Base>>& test_objects)
 {
-	std::vector<ItemInfo> ready_object_ptrs;
+	std::vector<Proxy> ready_object_ptrs;
 
 	for (const auto& object : test_objects)
 	{
@@ -60,7 +54,7 @@ std::vector<ItemInfo> prepareIndirect(const std::vector<std::unique_ptr<Base>>& 
 	return ready_object_ptrs;
 }
 
-void testIndirectPrepared(const std::vector<ItemInfo>& ready_items)
+void testIndirectPrepared(const std::vector<Proxy>& ready_items)
 {
 	for(const auto& item : ready_items)
 		item.Execute();

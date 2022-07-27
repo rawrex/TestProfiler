@@ -30,10 +30,12 @@ big_data_t makeData()
 
 	return data;
 }
+
 bool makeRandomBool()
 {
 	return makeRandomNumber(0, 1);
 }
+
 long long makeRandomIterationsNumber()
 {
 	return makeRandomNumber(MIN_ITERATIONS, MAX_ITERATIONS);
