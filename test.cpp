@@ -11,37 +11,16 @@
 #include "Constants.h"
 #include "Functions.h"
 #include "Classes.h"
+#include "Factory.h"
 
 
-enum class TestType { A, B, C, D, end };
-
-TestType randomType()
-{
-	auto random_number = makeRandomNumber(0, 4);
-    return static_cast<TestType>(random_number % static_cast<long long>(TestType::end));
-}
-
-std::unique_ptr<Base> makeRandomObject()
-{
-	auto type = randomType();
-
-	if(type == TestType::A)
-		return std::unique_ptr<Base>(new A());
-	if(type == TestType::B)
-		return std::unique_ptr<Base>(new B());
-	if(type == TestType::C)
-		return std::unique_ptr<Base>(new C());
-	if(type == TestType::D)
-		return std::unique_ptr<Base>(new D());
-
-	throw std::exception();
-}
 std::vector<std::unique_ptr<Base>> makeTestObjects()
 {
+	Factory factory;
 	std::vector<std::unique_ptr<Base>> test_data;
 
 	for(auto i=0; i != NUMBER_OF_TEST_OBJECTS; ++i)
-		test_data.push_back(makeRandomObject());
+		test_data.push_back(factory.CreateRandom());
 	
 	return test_data;
 }
