@@ -76,10 +76,9 @@ int main()
     auto proxy_result = timedExecution(testProxy, proxies);
     auto cached_result = timedExecution(testCached, cached);
 
-	print("\nDirect access result:");
-	print(direct_result, '\n');
-	print("Indirect access result:");
-	print(proxy_result, '\n');
-	print("Indirect prepared access result:");
-	print(cached_result, '\n');
+	print("\nFinished all tests.", '\n');
+
+	print("Direct access result\t\t", direct_result);
+	print("Indirect access result\t\t", proxy_result);
+	print("Cached access result\t\t", cached_result);
 }

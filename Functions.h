@@ -11,6 +11,11 @@ void print(const T& msg, char delimiter = ' ')
 {
 	std::cout << msg << delimiter;
 }
+template <typename T>
+void print(const T& msg, double result, char delimiter = '\n')
+{
+	std::cout << msg << ": " << result << delimiter;
+}
 
 // Profiler function
 template <typename F, typename ... Ts>
