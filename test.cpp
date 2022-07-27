@@ -24,8 +24,7 @@ std::vector<std::unique_ptr<Base>> makeTestObjects()
 	
 	return test_data;
 }
-
-std::vector<Proxy> makeTestPointers(const std::vector<std::unique_ptr<Base>>& test_objects)
+std::vector<Proxy> makeProxies(const std::vector<std::unique_ptr<Base>>& test_objects)
 {
 	std::vector<Proxy> test_pointers;
 
@@ -34,61 +33,52 @@ std::vector<Proxy> makeTestPointers(const std::vector<std::unique_ptr<Base>>& te
 
 	return test_pointers;
 }
-// Execute as soon as an object has passed the tests
-void testIndirectAccess(const std::vector<Proxy>& ptr_objects)
-{
-	for (const auto& object : ptr_objects)
-		testExecute(object);
-}
-std::vector<Proxy> prepareIndirect(const std::vector<std::unique_ptr<Base>>& test_objects)
+std::vector<Proxy> makeCache(const std::vector<std::unique_ptr<Base>>& test_objects)
 {
 	std::vector<Proxy> ready_object_ptrs;
 
 	for (const auto& object : test_objects)
-	{
 		if(!test(*object))
 			continue;
-
-		ready_object_ptrs.emplace_back(*object);
-	}
+		else
+			ready_object_ptrs.emplace_back(*object);
 	return ready_object_ptrs;
 }
 
-void testIndirectPrepared(const std::vector<Proxy>& ready_items)
-{
-	for(const auto& item : ready_items)
-		item.Execute();
-}
-		
-void testDirectAccess(const std::vector<std::unique_ptr<Base>>& objects)
+void testDirect(const std::vector<std::unique_ptr<Base>>& objects)
 {
 	for (const auto& object : objects)
 		testExecute(*object);
 }
-
-
-
-
+void testProxy(const std::vector<Proxy>& ptr_objects)
+{
+	for (const auto& object : ptr_objects)
+		testExecute(object);
+}
+void testCached(const std::vector<Proxy>& cached_proxies)
+{
+	for(const auto& proxy : cached_proxies)
+		proxy.Execute();
+}
 
 int main()
 {
 	std::cout << std::fixed;
 
+	// Prepare the data to test
     auto objects = makeTestObjects();
-	auto pointers = makeTestPointers(objects);
-	auto prepared_pointers = prepareIndirect(objects);
+	auto proxies = makeProxies(objects);
+	auto cached = makeCache(objects);
 	
-    auto direct_result = timedExecution(testDirectAccess, objects);
-    auto indirect_result = timedExecution(testIndirectAccess, pointers);
-    auto indirect_prepared_result = timedExecution(testIndirectPrepared, prepared_pointers);
+	// Run timed tests
+    auto direct_result = timedExecution(testDirect, objects);
+    auto proxy_result = timedExecution(testProxy, proxies);
+    auto cached_result = timedExecution(testCached, cached);
 
 	print("\nDirect access result:");
 	print(direct_result, '\n');
 	print("Indirect access result:");
-	print(indirect_result, '\n');
+	print(proxy_result, '\n');
 	print("Indirect prepared access result:");
-	print(indirect_prepared_result);
-	
-	std::cout << std::endl;
-
+	print(cached_result, '\n');
 }
