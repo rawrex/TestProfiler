@@ -250,24 +250,6 @@ std::vector<ItemInfo> prepareIndirect(const std::vector<std::shared_ptr<Base>>& 
 	return ready_object_ptrs;
 }
 
-// Note the use of output paramter, which is a bad practice
-array prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects, std::size_t& end)
-{
-	array ready_object_ptrs;
-
-	std::size_t index = 0;
-	for (const auto& object : test_objects)
-	{
-		if(!test(*object))
-			continue;
-
-		ready_object_ptrs[index] = ItemInfo(*object);
-		++index;
-	}
-	end = index;
-	return ready_object_ptrs;
-}
-
 void testIndirectPrepared(const std::vector<ItemInfo>& ready_items)
 {
 	for(const auto& item : ready_items)
