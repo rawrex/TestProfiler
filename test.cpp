@@ -13,51 +13,52 @@
 #include "Classes.h"
 #include "Factory.h"
 
+using vector_base = std::vector<std::unique_ptr<Base>>;
+using vector_proxy = std::vector<Proxy>;
 
-std::vector<std::unique_ptr<Base>> makeTestObjects()
+vector_base makeObjects()
 {
 	Factory factory;
-	std::vector<std::unique_ptr<Base>> test_data;
+	vector_base objects;
 
 	for(auto i=0; i != NUMBER_OF_TEST_OBJECTS; ++i)
-		test_data.push_back(factory.CreateRandom());
+		objects.push_back(factory.CreateRandom());
 	
-	return test_data;
+	return objects;
 }
-std::vector<Proxy> makeProxies(const std::vector<std::unique_ptr<Base>>& test_objects)
+vector_proxy makeProxies(const vector_base& objects)
 {
-	std::vector<Proxy> test_pointers;
+	vector_proxy proxies;
 
-	for(const std::unique_ptr<Base>& object : test_objects)
-		test_pointers.emplace_back(*object);
+	for(const auto& object : objects)
+		proxies.emplace_back(*object);
 
-	return test_pointers;
+	return proxies;
 }
-std::vector<Proxy> makeCache(const std::vector<std::unique_ptr<Base>>& test_objects)
+vector_proxy makeCache(const vector_base& objects)
 {
-	std::vector<Proxy> ready_object_ptrs;
+	vector_proxy cache;
 
-	for (const auto& object : test_objects)
-		if(!test(*object))
-			continue;
-		else
-			ready_object_ptrs.emplace_back(*object);
-	return ready_object_ptrs;
+	for (const auto& object : objects)
+		if(test(*object))
+			cache.emplace_back(*object);
+
+	return cache;
 }
 
-void testDirect(const std::vector<std::unique_ptr<Base>>& objects)
+void testDirect(const vector_base& objects)
 {
 	for (const auto& object : objects)
 		testExecute(*object);
 }
-void testProxy(const std::vector<Proxy>& ptr_objects)
+void testProxy(const vector_proxy& proxies)
 {
-	for (const auto& object : ptr_objects)
-		testExecute(object);
+	for (const auto& proxy : proxies)
+		testExecute(proxy);
 }
-void testCached(const std::vector<Proxy>& cached_proxies)
+void testCached(const vector_proxy& cache)
 {
-	for(const auto& proxy : cached_proxies)
+	for(const auto& proxy : cache)
 		proxy.Execute();
 }
 
@@ -66,7 +67,7 @@ int main()
 	std::cout << std::fixed;
 
 	// Prepare the data to test
-    auto objects = makeTestObjects();
+    auto objects = makeObjects();
 	auto proxies = makeProxies(objects);
 	auto cached = makeCache(objects);
 	
