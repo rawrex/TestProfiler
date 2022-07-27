@@ -8,16 +8,10 @@
 #include <vector>
 #include <ctime>
 
-constexpr unsigned ITERATION_MODULO = 3;
-constexpr unsigned MIN_ITERATIONS = 0;
-constexpr unsigned MAX_ITERATIONS = 100;
-constexpr unsigned NUMBER_OF_TEST_OBJECTS = 255;
-constexpr unsigned NUMBER_OF_DATUMS = 10;
+#include "Classes.h"
+#include "Constants.h"
 
-class Base;
 
-using big_number_t = long long;
-using big_data_t = std::array<big_number_t, NUMBER_OF_DATUMS>;		// 80 bytes on my machine
 
 // Utility funcitons
 template <typename T>
@@ -67,70 +61,6 @@ long long makeRandomIterationsNumber()
 	return makeRandomNumber(MIN_ITERATIONS, MAX_ITERATIONS);
 }
 	
-struct Base  
-{
-    virtual void Execute() const = 0;
-		
-	Base() : is_enabled(makeRandomBool()), number_of_iterations(makeRandomIterationsNumber()) {}
-	virtual ~Base() = default;
-
-    std::atomic<bool> is_enabled;
-    std::atomic<std::uint32_t> number_of_iterations;
-};
-
-class A : public Base
-{
-public:
-	A() : data(makeData()) {}
-	virtual ~A() = default;
-	virtual void Execute() const override 
-	{
-		print(makeRandomNumber(0,10));
-	}
-
-private:
-	big_data_t data;
-};
-
-class B : public Base
-{
-public:
-	B() : data(makeData()) {}
-	virtual ~B() = default;
-	virtual void Execute() const override 
-	{
-		print(makeRandomNumber(0,10));
-	}
-private:
-	big_data_t data;
-};
-
-class C : public Base
-{
-public:
-	C() : data(makeData()) {}
-	virtual ~C() = default;
-	virtual void Execute() const override 
-	{
-		print(makeRandomNumber(0,10));
-	}
-private:
-	big_data_t data;
-};
-
-class D : public Base
-{
-public:
-	D() : data(makeData()) {}
-	virtual ~D() = default;
-	virtual void Execute() const override 
-	{
-		print(makeRandomNumber(0,10));
-	}
-
-private:
-	big_data_t data;
-};
 
 enum class TestType { A, B, C, D, end };
 
