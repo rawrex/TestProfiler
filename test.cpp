@@ -8,59 +8,10 @@
 #include <vector>
 #include <ctime>
 
-#include "Classes.h"
 #include "Constants.h"
+#include "Functions.h"
+#include "Classes.h"
 
-
-
-// Utility funcitons
-template <typename T>
-void print(const T& msg, char delimiter = ' ')
-{
-	std::cout << msg << delimiter;
-}
-
-big_number_t makeRandomNumber(long long min, long long max)
-{
-	static std::default_random_engine engine(time(nullptr));
-	std::uniform_int_distribution<big_number_t> dist(min, max);
-	return dist(engine);
-}
-
-// Profiler function
-template <typename F, typename ... Ts>
-double timedExecution(F&& f, Ts&&...args)
-{
-    std::clock_t start = std::clock();
-    std::forward<F>(f)(std::forward<Ts>(args)...);
-    return static_cast<double>(std::clock() - start) / static_cast<double>(CLOCKS_PER_SEC);
-}
-
-// Make a container populated with NUMBER_OF_TEST_OBJECTS with random values
-big_data_t makeData()
-{
-	big_data_t data;
-	
-	auto min = std::numeric_limits<big_number_t>::min();
-	auto max = std::numeric_limits<big_number_t>::max();
-	
-	for(auto i=0; i != NUMBER_OF_DATUMS; ++i)
-	{
-		auto random_number = makeRandomNumber(min, max);
-		data[i] = random_number;
-	}
-
-	return data;
-}
-bool makeRandomBool()
-{
-	return makeRandomNumber(0, 1);
-}
-long long makeRandomIterationsNumber()
-{
-	return makeRandomNumber(MIN_ITERATIONS, MAX_ITERATIONS);
-}
-	
 
 enum class TestType { A, B, C, D, end };
 
@@ -69,6 +20,7 @@ TestType randomType()
 	auto random_number = makeRandomNumber(0, 4);
     return static_cast<TestType>(random_number % static_cast<long long>(TestType::end));
 }
+
 std::unique_ptr<Base> makeRandomObject()
 {
 	auto type = randomType();

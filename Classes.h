@@ -13,7 +13,7 @@ struct Base
 	virtual ~Base() = default;
 
     std::atomic<bool> is_enabled;
-    std::atomic<std::uint32_t> number_of_iterations;
+    std::atomic<uint32_t> number_of_iterations;
 };
 
 class A : public Base
