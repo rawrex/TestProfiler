@@ -236,22 +236,22 @@ void testIndirectAccess(const std::vector<ItemInfo>& ptr_objects)
 using array = std::array<ItemInfo, NUMBER_OF_TEST_OBJECTS>;
 
 // Note the use of output paramter, which is a bad practice
-//array prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects, std::size_t& end)
-//{
-//	array ready_object_ptrs;
-//
-//	std::size_t index = 0;
-//	for (const auto& object : test_objects)
-//	{
-//		if(!test(object))
-//			continue;
-//
-//		ready_object_ptrs[index] = ItemInfo(*object);
-//		++index;
-//	}
-//	end = index;
-//	return ready_object_ptrs;
-//}
+array prepareIndirect(const std::vector<std::shared_ptr<Base>>& test_objects, std::size_t& end)
+{
+	array ready_object_ptrs;
+
+	std::size_t index = 0;
+	for (const auto& object : test_objects)
+	{
+		if(!test(*object))
+			continue;
+
+		ready_object_ptrs[index] = ItemInfo(*object);
+		++index;
+	}
+	end = index;
+	return ready_object_ptrs;
+}
 
 void testIndirectPrepared(const array& ready_object_ptrs, const std::size_t& end)
 {
@@ -276,19 +276,19 @@ int main()
 
     auto objects = makeTestObjects();
 	auto pointers = makeTestPointers(objects);
-	// std::size_t end = 0;
-	//auto prepared_pointers = prepareIndirect(objects, end);
+	std::size_t end = 0;
+	auto prepared_pointers = prepareIndirect(objects, end);
 	
     auto direct_result = timedExecution(testDirectAccess, objects);
     auto indirect_result = timedExecution(testIndirectAccess, pointers);
-    // auto indirect_prepared_result = timedExecution(testIndirectPrepared, prepared_pointers, end);
+    auto indirect_prepared_result = timedExecution(testIndirectPrepared, prepared_pointers, end);
 
 	print("\nDirect access result:");
 	print(direct_result, '\n');
 	print("Indirect access result:");
 	print(indirect_result, '\n');
 	print("Indirect prepared access result:");
-	// print(indirect_prepared_result);
+	print(indirect_prepared_result);
 	
 	std::cout << std::endl;
 
