@@ -33,7 +33,6 @@ public:
 	{
 		return Create(randomType());
 	}
-
 };
 
 #endif
