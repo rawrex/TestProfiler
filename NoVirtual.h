@@ -89,10 +89,7 @@ struct Proxy
 		is_enabled.store(object.is_enabled);
 		number_of_iterations.store(object.number_of_iterations);
 	}
-	void Execute() const 
-	{
-		item->Execute();
-	}
+
 	const NoVirtualBase* item = nullptr;
 	std::atomic<bool> is_enabled = false; 
 	std::atomic<std::uint32_t> number_of_iterations = 0;
