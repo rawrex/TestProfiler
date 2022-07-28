@@ -71,6 +71,15 @@ private:
 	big_data_t data;
 };
 
+
+struct ProxyObject
+{
+	NoVirtualA* a = nullptr;
+	NoVirtualB* b = nullptr;
+	NoVirtualC* c = nullptr;
+	NoVirtualD* d = nullptr;
+};
+
 struct NoVirtualProxy
 {
 	NoVirtualProxy() = default;
@@ -89,6 +98,7 @@ struct NoVirtualProxy
 		number_of_iterations.store(item_info.number_of_iterations);
 		return *this;
 	}
+
 	NoVirtualProxy(const NoVirtualBase& object) 
 	// : item(&object) 
 	{
@@ -96,27 +106,49 @@ struct NoVirtualProxy
 		number_of_iterations.store(object.number_of_iterations);
 	}
 
-	std::tuple<NoVirtualA*, NoVirtualB*, NoVirtualC*, NoVirtualD*> possible_items;
-	Type type_of_object = Type::end;
+	NoVirtualProxy(NoVirtualA& obj) 
+	{
+		object.a = &obj;
+		is_enabled.store(obj.is_enabled);
+		number_of_iterations.store(obj.number_of_iterations);
+	}
+	NoVirtualProxy(NoVirtualB& obj) 
+	{
+		object.b = &obj;
+		is_enabled.store(obj.is_enabled);
+		number_of_iterations.store(obj.number_of_iterations);
+	}
+	NoVirtualProxy(NoVirtualC& obj) 
+	{
+		object.c = &obj;
+		is_enabled.store(obj.is_enabled);
+		number_of_iterations.store(obj.number_of_iterations);
+	}
+	NoVirtualProxy(NoVirtualD& obj) 
+	{
+		object.d = &obj;
+		is_enabled.store(obj.is_enabled);
+		number_of_iterations.store(obj.number_of_iterations);
+	}
+	void Execute() const
+	{
+		if(object.a)
+			object.a->Execute();	
+		if(object.b)
+			object.b->Execute();	
+		if(object.c)
+			object.c->Execute();	
+		if(object.d)
+			object.d->Execute();	
+	}
+	ProxyObject object;
 	std::atomic<bool> is_enabled = false; 
 	std::atomic<std::uint32_t> number_of_iterations = 0;
 };
 
-void Execute(const NoVirtualA& object)
+template <typename T>
+void Execute(const T& obj)
 {
-	object.Execute();
+	obj.Execute();
 }
-void Execute(const NoVirtualB& object)
-{
-	object.Execute();
-}
-void Execute(const NoVirtualC& object)
-{
-	object.Execute();
-}
-void Execute(const NoVirtualD& object)
-{
-	object.Execute();
-}
-
 #endif
