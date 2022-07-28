@@ -6,6 +6,7 @@
 #include "Classes.h"
 #include "Factory.h"
 #include "Result.h"
+#include "NoVirtual.h"
 
 using vector_base = std::vector<std::unique_ptr<Base>>;
 using vector_proxy = std::vector<Proxy>;
@@ -40,24 +41,46 @@ vector_proxy makeCache(const vector_base& objects)
 	return cache;
 }
 
-void testDirect(const vector_base& objects)
+namespace Virtual
 {
-	for (const auto& object : objects)
-		testExecute(*object);
+	void testDirect(const vector_base& objects)
+	{
+		for (const auto& object : objects)
+			testExecute(*object);
+	}
+	void testProxy(const vector_proxy& proxies)
+	{
+		for (const auto& proxy : proxies)
+			testExecute(proxy);
+	}
+	void testCached(const vector_proxy& cache)
+	{
+		for (const auto& proxy : cache)
+			proxy.Execute();
+	}
 }
-void testProxy(const vector_proxy& proxies)
+namespace NoVirtual
 {
-	for (const auto& proxy : proxies)
-		testExecute(proxy);
-}
-void testCached(const vector_proxy& cache)
-{
-	for (const auto& proxy : cache)
-		proxy.Execute();
+	void testDirect(const vector_base& objects)
+	{
+		for (const auto& object : objects)
+			Execute(*object);
+	}
+	void testProxy(const vector_proxy& proxies)
+	{
+		for (const auto& proxy : proxies)
+			Execute(proxy);
+	}
+	void testCached(const vector_proxy& cache)
+	{
+		for (const auto& proxy : cache)
+			Execute(proxy);
+	}
 }
 Result runTest()
 {
-	Result result;
+	Result result_virtual;
+	Result result_no_virtual;
 
 	// Prepare the data to test
 	auto objects = makeObjects();
@@ -65,9 +88,14 @@ Result runTest()
 	auto cached = makeCache(objects);
 
 	// Run timed tests
-	result.direct = timedExecution(testDirect, objects);
-	result.proxy = timedExecution(testProxy, proxies);
-	result.cache = timedExecution(testCached, cached);
+	result.direct = timedExecution(Virtual::testDirect, objects);
+	result.proxy = timedExecution(Virtual::testProxy, proxies);
+	result.cache = timedExecution(Virtual::testCached, cached);
+
+	// Run with no virtual functions
+	result.direct = timedExecution(NoVirtual::testDirect, objects);
+	result.proxy = timedExecution(NoVirtual::testProxy, proxies);
+	result.cache = timedExecution(NoVirtual::testCached, cached);
 
 	return result;
 }
