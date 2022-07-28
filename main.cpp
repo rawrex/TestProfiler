@@ -1,5 +1,6 @@
 #include <memory>
 #include <vector>
+#include <numeric>
 #include "Constants.h"
 #include "Functions.h"
 #include "Classes.h"
@@ -71,31 +72,31 @@ Result runTest()
 
 	return result;
 }
-void printResults(const Result& result)
+void printResult(const Result& result)
 {
 	print("\nDirect access result\t\t", result.direct);
 	print("Indirect access result\t\t", result.proxy);
 	print("Cached access result\t\t", result.cache);
 }
-AverageResult runTests(const unsigned& n_times)
+std::vector<Result> runTests(const unsigned& n_times)
 {
-	Result current_result;
-	AverageResult average_result;
-
+	std::vector<Result> results;
 	for (unsigned i = 0; i != n_times; ++i)
-	{
-		current_result = runTest();
-		average_result.addSample(current_result);
-		// printResults(current_result);
-	}
+		results.emplace_back(runTest());
 
-	return average_result;
+	return results;
+}
+Result makeAverageResult(const std::vector<Result>& results)
+{
+	auto n = results.size();
+	auto sum = std::accumulate(results.cbegin(), results.cend(), Result());
+	return Result(sum.direct / n, sum.proxy / n, sum.cache / n);
 }
 
 
 int main()
 {
 	std::cout << std::fixed;
-	auto average_result = runTests(1000);
-	printResults(average_result);
+	auto results = runTests(4000);
+	printResult(makeAverageResult(results));
 }

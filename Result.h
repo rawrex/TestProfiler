@@ -2,42 +2,17 @@
 #define RESULT_H
 struct Result
 {
-	double direct;
-	double proxy;
-	double cache;
-	virtual ~Result() = default;
+	double direct = 0;
+	double proxy = 0;
+	double cache = 0;
+
+	Result() = default;
+	Result(double d, double p, double c) : direct(d), proxy(p), cache(c) {}
 };
 
-struct AverageResult : public Result
+Result operator+(const Result& lhs, const Result& rhs)
 {
-private:
-	void addDirectSample(const Result& new_sample)
-	{
-		direct -= direct / N;
-		direct += new_sample.direct	/ N;
-	}
-	void addProxySample(const Result& new_sample)
-	{
-		proxy -= proxy / N;
-		proxy += new_sample.proxy / N;
-	}
-	void addCacheSample(const Result& new_sample)
-	{
-		cache -= cache / N;
-		cache += new_sample.cache / N;
-	}
-
-public:
-	unsigned N = 1;
-	AverageResult() = default;
-	~AverageResult() = default;
-	AverageResult(const unsigned& n) : N(n) {}
-	void addSample(const Result& new_sample)
-	{
-		addDirectSample(new_sample);
-		addProxySample(new_sample);
-		addCacheSample(new_sample);
-	}
-};
+	return Result(lhs.direct + rhs.direct, lhs.proxy + rhs.proxy, lhs.cache + rhs.cache);
+}
 
 #endif
