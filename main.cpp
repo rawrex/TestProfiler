@@ -58,6 +58,29 @@ namespace Virtual
 		for (const auto& proxy : cache)
 			proxy.Execute();
 	}
+	Result runTest()
+	{
+		Result result;
+
+		// Prepare the data to test
+		auto objects = makeObjects();
+		auto proxies = makeProxies(objects);
+		auto cached = makeCache(objects);
+
+		// Run with no virtual functions
+		result.direct = timedExecution(Virtual::testDirect, objects);
+		result.proxy = timedExecution(Virtual::testProxy, proxies);
+		result.cache = timedExecution(Virtual::testCached, cached);
+
+		return result;
+	}
+	std::vector<Result> runTests(const unsigned& n_times)
+	{
+		std::vector<Result> results;
+		for (unsigned i = 0; i != n_times; ++i)
+			results.emplace_back(Virtual::runTest());
+		return results;
+	}
 }
 namespace NoVirtual
 {
@@ -76,35 +99,30 @@ namespace NoVirtual
 		for (const auto& proxy : cache)
 			Execute(proxy);
 	}
-}
-Result runTest()
-{
-	Result result_virtual;
-	Result result_no_virtual;
 
-	// Prepare the data to test
-	auto objects = makeObjects();
-	auto proxies = makeProxies(objects);
-	auto cached = makeCache(objects);
+	Result runTest()
+	{
+		Result result;
 
-	// Run timed tests
-	result.direct = timedExecution(Virtual::testDirect, objects);
-	result.proxy = timedExecution(Virtual::testProxy, proxies);
-	result.cache = timedExecution(Virtual::testCached, cached);
+		// Prepare the data to test
+		auto objects = makeObjects();
+		auto proxies = makeProxies(objects);
+		auto cached = makeCache(objects);
 
-	// Run with no virtual functions
-	result.direct = timedExecution(NoVirtual::testDirect, objects);
-	result.proxy = timedExecution(NoVirtual::testProxy, proxies);
-	result.cache = timedExecution(NoVirtual::testCached, cached);
+		// Run with no virtual functions
+		result.direct = timedExecution(NoVirtual::testDirect, objects);
+		result.proxy = timedExecution(NoVirtual::testProxy, proxies);
+		result.cache = timedExecution(NoVirtual::testCached, cached);
 
-	return result;
-}
-std::vector<Result> runTests(const unsigned& n_times)
-{
-	std::vector<Result> results;
-	for (unsigned i = 0; i != n_times; ++i)
-		results.emplace_back(runTest());
-	return results;
+		return result;
+	}
+	std::vector<Result> runTests(const unsigned& n_times)
+	{
+		std::vector<Result> results;
+		for (unsigned i = 0; i != n_times; ++i)
+			results.emplace_back(NoVirtual::runTest());
+		return results;
+	}
 }
 Result makeAverageResult(const std::vector<Result>& results)
 {
@@ -123,6 +141,12 @@ void printResult(const Result& result)
 int main()
 {
 	std::cout << std::fixed;
-	auto results = runTests(2000);
-	printResult(makeAverageResult(results));
+
+	auto virtual_results = Virtual::runTests(2000);
+	auto no_virtual_results = Virtual::runTests(2000);
+
+	print("Virtual");
+	printResult(makeAverageResult(virtual_results));
+	print("No Virtual");
+	printResult(makeAverageResult(no_virtual_results));
 }
