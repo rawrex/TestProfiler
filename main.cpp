@@ -55,7 +55,6 @@ void testCached(const vector_proxy& cache)
 	for (const auto& proxy : cache)
 		proxy.Execute();
 }
-
 Result runTest()
 {
 	Result result;
@@ -72,18 +71,11 @@ Result runTest()
 
 	return result;
 }
-void printResult(const Result& result)
-{
-	print("\nDirect access result\t\t", result.direct);
-	print("Indirect access result\t\t", result.proxy);
-	print("Cached access result\t\t", result.cache);
-}
 std::vector<Result> runTests(const unsigned& n_times)
 {
 	std::vector<Result> results;
 	for (unsigned i = 0; i != n_times; ++i)
 		results.emplace_back(runTest());
-
 	return results;
 }
 Result makeAverageResult(const std::vector<Result>& results)
@@ -91,6 +83,12 @@ Result makeAverageResult(const std::vector<Result>& results)
 	auto n = results.size();
 	auto sum = std::accumulate(results.cbegin(), results.cend(), Result());
 	return Result(sum.direct / n, sum.proxy / n, sum.cache / n);
+}
+void printResult(const Result& result)
+{
+	print("\nDirect access result\t\t", result.direct);
+	print("Indirect access result\t\t", result.proxy);
+	print("Cached access result\t\t", result.cache);
 }
 
 
