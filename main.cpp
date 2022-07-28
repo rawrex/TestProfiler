@@ -86,9 +86,9 @@ Result makeAverageResult(const std::vector<Result>& results)
 }
 void printResult(const Result& result)
 {
-	print("\nDirect access result\t\t", result.direct);
-	print("Indirect access result\t\t", result.proxy);
-	print("Cached access result\t\t", result.cache);
+	print("\nПрямой доступ к обьекту\t\t", result.direct);
+	print("Доступ через прокси\t\t", result.proxy);
+	print("Кешированный доступ\t\t", result.cache);
 }
 
 
