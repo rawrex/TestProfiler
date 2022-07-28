@@ -146,9 +146,4 @@ struct NoVirtualProxy
 	std::atomic<std::uint32_t> number_of_iterations = 0;
 };
 
-template <typename T>
-void Execute(const T& obj)
-{
-	obj.Execute();
-}
 #endif
