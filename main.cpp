@@ -95,6 +95,6 @@ void printResult(const Result& result)
 int main()
 {
 	std::cout << std::fixed;
-	auto results = runTests(4000);
+	auto results = runTests(5000);
 	printResult(makeAverageResult(results));
 }
