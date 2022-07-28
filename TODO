@@ -1,4 +1,4 @@
 DONE 1. Move classes into a separate file (Base, A, B, C, D)
 DONE 2. Make a Factory and RandomFactory classes
 DONE 3. Move auxilary funcitons into a separate file
-4. Move the test suite in a separate file
+DONE 4. Move the test suite in a separate file
