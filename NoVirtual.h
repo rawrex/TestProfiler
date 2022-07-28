@@ -2,6 +2,7 @@
 #define NOVIRTUAL_H
 
 #include <atomic>
+#include <tuple>
 #include "Factory.h"
 #include "Constants.h"
 #include "Functions.h"
@@ -73,25 +74,30 @@ private:
 struct NoVirtualProxy
 {
 	NoVirtualProxy() = default;
-	NoVirtualProxy(NoVirtualProxy&& item_info) : item(std::move(item_info.item))
+
+	// So far the copy control is wrong
+	NoVirtualProxy(NoVirtualProxy&& item_info) 
+	//: item(std::move(item_info.item))
 	{
 		is_enabled.store(item_info.is_enabled);
 		number_of_iterations.store(item_info.number_of_iterations);
 	}
 	NoVirtualProxy& operator=(const NoVirtualProxy& item_info) 
 	{
-		item = item_info.item;
+		//item = item_info.item;
 		is_enabled.store(item_info.is_enabled);
 		number_of_iterations.store(item_info.number_of_iterations);
 		return *this;
 	}
-	NoVirtualProxy(const NoVirtualBase& object) : item(&object) 
+	NoVirtualProxy(const NoVirtualBase& object) 
+	// : item(&object) 
 	{
 		is_enabled.store(object.is_enabled);
 		number_of_iterations.store(object.number_of_iterations);
 	}
 
-	const NoVirtualBase* item = nullptr;
+	std::tuple<NoVirtualA*, NoVirtualB*, NoVirtualC*, NoVirtualD*> possible_items;
+	Type type_of_object = Type::end;
 	std::atomic<bool> is_enabled = false; 
 	std::atomic<std::uint32_t> number_of_iterations = 0;
 };
@@ -112,4 +118,5 @@ void Execute(const NoVirtualD& object)
 {
 	object.Execute();
 }
+
 #endif
