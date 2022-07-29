@@ -95,8 +95,8 @@ struct Proxy
 		item->Execute();
 	}
 	const Base* item = nullptr;
-	std::atomic<bool> is_enabled = false; 
-	std::atomic<std::uint32_t> number_of_iterations = 0;
+	std::atomic<bool> is_enabled {false}; 
+	std::atomic<std::uint32_t> number_of_iterations {0};
 };
 
 #endif

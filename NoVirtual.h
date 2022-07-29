@@ -142,8 +142,8 @@ struct NoVirtualProxy
 			object.d->Execute();	
 	}
 	ProxyObject object;
-	std::atomic<bool> is_enabled = false; 
-	std::atomic<std::uint32_t> number_of_iterations = 0;
+	std::atomic<bool> is_enabled {false}; 
+	std::atomic<std::uint32_t> number_of_iterations {0};
 };
 
 #endif
